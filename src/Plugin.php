@@ -31,7 +31,7 @@ class Plugin extends \Yaf_Plugin_Abstract
 
     private function needSample(\Yaf_Request_Abstract $yafRequest)
     {
-        $apiPrefix = isset($this->config['api_prefix']) ? $this->config['api_prefix'] : '/api';
+        $apiPrefix = isset($this->config['api_prefix']) ? $this->config['api_prefix'] : '/';
         return stripos($yafRequest->getRequestUri(), $apiPrefix) === 0;
     }
 
