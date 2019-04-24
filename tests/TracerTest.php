@@ -17,7 +17,6 @@ class TracerTest extends \PHPUnit\Framework\TestCase
             ->andReturn('fcgi');
 
         $tracer = new \Lxj\Yaf\Zipkin\Tracer(['samplerate' => 1]);
-        $tracer->sampleRate = 1;
 
         $this->assertTrue($tracer->rootSpan('unit-test', function (\Zipkin\Span $span) use ($tracer) {
             $this->assertTrue($tracer->span('unit-test-sub', function (\Zipkin\Span $span) {
@@ -36,7 +35,6 @@ class TracerTest extends \PHPUnit\Framework\TestCase
     public function testConsoleTrace()
     {
         $tracer = new \Lxj\Yaf\Zipkin\Tracer(['samplerate' => 1]);
-        $tracer->sampleRate = 1;
 
         $this->assertTrue($tracer->rootSpan('unit-test', function (\Zipkin\Span $span) use ($tracer) {
             $this->assertTrue($tracer->span('unit-test-sub', function (\Zipkin\Span $span) {
