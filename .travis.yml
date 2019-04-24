@@ -2,6 +2,6 @@ language: php
 php:
       - '7.1'
 before_script:
-      - pecl intall yaf
+      - pecl install yaf
       - composer install -vvv
 script: ./vendor/bin/phpunit tests
