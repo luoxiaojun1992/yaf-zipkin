@@ -31,8 +31,8 @@ class Plugin extends \Yaf_Plugin_Abstract
 
     private function needSample(\Yaf_Request_Abstract $yafRequest)
     {
-        $apiPrefix = isset($this->config['api_prefix']) ? $this->config['api_prefix'] : '/';
-        return stripos($yafRequest->getRequestUri(), $apiPrefix) === 0;
+        $apiPrefix = isset($this->config['api_prefix']) ? $this->config['api_prefix'] : '/api';
+        return stripos($this->getRequestUri($yafRequest), $apiPrefix) === 0;
     }
 
     public function routerStartup(\Yaf_Request_Abstract $yafRequest, \Yaf_Response_Abstract $response)
@@ -47,7 +47,7 @@ class Plugin extends \Yaf_Plugin_Abstract
 
         if ($this->span->getContext()->isSampled()) {
             $this->tracer->addTag($this->span, HTTP_HOST, $this->getHttpHost($yafRequest));
-            $this->tracer->addTag($this->span, HTTP_PATH, $this->tracer->formatHttpPath($yafRequest->getRequestUri()));
+            $this->tracer->addTag($this->span, HTTP_PATH, $this->getRequestUri($yafRequest));
             $this->tracer->addTag($this->span, Tracer::HTTP_QUERY_STRING, (string)$yafRequest->getServer('QUERY_STRING'));
             $this->tracer->addTag($this->span, HTTP_METHOD, $yafRequest->getMethod());
             $httpRequestBody = $this->tracer->convertToStr(file_get_contents('php://input'));
@@ -85,7 +85,7 @@ class Plugin extends \Yaf_Plugin_Abstract
         $this->span = $this->tracer->getSpan($parentContext);
         $this->span->setName(
             $this->tracer->formatRoutePath(
-                $this->tracer->formatHttpPath($yafRequest->getRequestUri())
+                $this->getRequestUri($yafRequest)
             )
         );
         $this->span->setKind(SERVER);
@@ -210,5 +210,16 @@ class Plugin extends \Yaf_Plugin_Abstract
         }
 
         return false;
+    }
+
+    private function getRequestUri(\Yaf_Request_Abstract $yafRequest)
+    {
+        $uri = \Yaf_Registry::get('zipkin')->formatHttpPath($yafRequest->getRequestUri());
+        $pathInfo = parse_url($uri);
+        if (isset($pathInfo['path'])) {
+            return $pathInfo['path'];
+        }
+
+        return $uri;
     }
 }
