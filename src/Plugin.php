@@ -20,13 +20,27 @@ class Plugin extends \Yaf_Plugin_Abstract
     /** @var Span */
     private $span;
 
+    private $config;
+
     public function __construct()
     {
-        \Yaf_Registry::set('zipkin', new Tracer(\Yaf_Application::app()->getConfig()->zipkin->config->toArray()));
+        $this->config = \Yaf_Application::app()->getConfig()->zipkin->config->toArray();
+
+        \Yaf_Registry::set('zipkin', new Tracer($this->config));
+    }
+
+    private function needSample(\Yaf_Request_Abstract $yafRequest)
+    {
+        $apiPrefix = isset($this->config['api_prefix']) ? $this->config['api_prefix'] : '/api';
+        return stripos($yafRequest->getRequestUri(), $apiPrefix) === 0;
     }
 
     public function routerStartup(\Yaf_Request_Abstract $yafRequest, \Yaf_Response_Abstract $response)
     {
+        if (!$this->needSample($yafRequest)) {
+            return;
+        }
+
         $this->tracer = \Yaf_Registry::get('zipkin');
 
         $this->startSpan($yafRequest);
@@ -135,6 +149,10 @@ class Plugin extends \Yaf_Plugin_Abstract
 
     public function dispatchLoopShutdown(\Yaf_Request_Abstract $request, \Yaf_Response_Abstract $response)
     {
+        if (!$this->needSample($request)) {
+            return;
+        }
+
         if ($this->span && $this->tracer) {
             if ($this->span->getContext()->isSampled()) {
                 $this->finishSpanTag($request, $response);
