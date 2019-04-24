@@ -60,11 +60,11 @@ class Tracer
 
     /**
      * Tracer constructor.
+     *
+     * @param $config
      */
-    public function __construct()
+    public function __construct($config)
     {
-        $config = \Yaf_Registry::get("config")->zipkin->config->toArray();
-
         if (isset($config['servicename'])) {
             $this->serviceName = $config['servicename'];
         }
@@ -337,7 +337,7 @@ class Tracer
         if ($this->rootContext) {
             $parentContext = $this->rootContext;
         } else {
-            if (!in_array(php_sapi_name(), ['phpdbg', 'cli'])) {
+            if (!in_array(Helper::sapi(), ['phpdbg', 'cli'])) {
                 //Extract trace context from headers
                 $headers = [];
                 foreach ($_SERVER as $key => $value) {

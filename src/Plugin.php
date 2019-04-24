@@ -22,7 +22,7 @@ class Plugin extends \Yaf_Plugin_Abstract
 
     public function __construct()
     {
-        \Yaf_Registry::set('zipkin', new Tracer());
+        \Yaf_Registry::set('zipkin', new Tracer(\Yaf_Registry::get("config")->zipkin->config->toArray()));
     }
 
     public function routerStartup(\Yaf_Request_Abstract $yafRequest, \Yaf_Response_Abstract $response)

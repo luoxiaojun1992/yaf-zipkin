@@ -10,4 +10,9 @@ class Helper
             $zipkinLog->log($message, $level, $category);
         }
     }
+
+    public static function sapi()
+    {
+        return php_sapi_name();
+    }
 }
