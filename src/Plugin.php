@@ -31,8 +31,15 @@ class Plugin extends \Yaf_Plugin_Abstract
 
     private function needSample(\Yaf_Request_Abstract $yafRequest)
     {
-        $apiPrefix = isset($this->config['api_prefix']) ? $this->config['api_prefix'] : '/';
-        return stripos($this->getRequestUri($yafRequest), $apiPrefix) === 0;
+        $apiPrefix = !empty($this->config['api_prefix']) ? explode(',', $this->config['api_prefix']) : ['/'];
+        $uri = \Yaf_Registry::get('zipkin')->formatHttpPath($yafRequest->getRequestUri());
+        foreach ($apiPrefix as $prefix) {
+            if (stripos($uri, $prefix) === 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function routerStartup(\Yaf_Request_Abstract $yafRequest, \Yaf_Response_Abstract $response)
