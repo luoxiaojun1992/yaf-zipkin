@@ -25,14 +25,17 @@ class Plugin extends \Yaf_Plugin_Abstract
     public function __construct()
     {
         $this->config = \Yaf_Application::app()->getConfig()->zipkin->config->toArray();
-
-        \Yaf_Registry::set('zipkin', new Tracer($this->config));
     }
 
     private function needSample(\Yaf_Request_Abstract $yafRequest)
     {
-        $apiPrefix = !empty($this->config['api_prefix']) ? explode(',', $this->config['api_prefix']) : ['/'];
-        $uri = \Yaf_Registry::get('zipkin')->formatHttpPath($yafRequest->getRequestUri());
+        $apiPrefix = !empty($this->config['api_prefix']) ? explode(',', $this->config['api_prefix']) : ['/api', '/internal/'];
+
+        $uri = $yafRequest->getRequestUri();
+        if (strpos($uri, '/') !== 0) {
+            $uri = '/' . $uri;
+        }
+
         foreach ($apiPrefix as $prefix) {
             if (stripos($uri, $prefix) === 0) {
                 return true;
@@ -48,7 +51,7 @@ class Plugin extends \Yaf_Plugin_Abstract
             return;
         }
 
-        $this->tracer = \Yaf_Registry::get('zipkin');
+        $this->tracer = Tracer::create();
 
         $this->startSpan($yafRequest);
 
@@ -221,7 +224,7 @@ class Plugin extends \Yaf_Plugin_Abstract
 
     private function getRequestUri(\Yaf_Request_Abstract $yafRequest)
     {
-        $uri = \Yaf_Registry::get('zipkin')->formatHttpPath($yafRequest->getRequestUri());
+        $uri = $this->tracer->formatHttpPath($yafRequest->getRequestUri());
         $pathInfo = parse_url($uri);
         if (isset($pathInfo['path'])) {
             return $pathInfo['path'];

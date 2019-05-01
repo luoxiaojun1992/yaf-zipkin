@@ -94,6 +94,21 @@ class Tracer
     }
 
     /**
+     * @return Tracer
+     */
+    public static function create()
+    {
+        if ($tracer = \Yaf_Registry::get('zipkin')) {
+            return $tracer;
+        }
+
+        $tracer = new static(\Yaf_Application::app()->getConfig()->zipkin->config->toArray());
+        \Yaf_Registry::set('zipkin', $tracer);
+
+        return $tracer;
+    }
+
+    /**
      * Create zipkin tracer
      */
     private function createTracer()

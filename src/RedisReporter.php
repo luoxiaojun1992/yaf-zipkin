@@ -12,7 +12,7 @@ final class RedisReporter implements Reporter
 {
     const DEFAULT_OPTIONS = [
         'queue_name' => 'queue:zipkin:span',
-        'connection' => 'zipkinRedis',
+        'connection' => 'zipkinredis',
     ];
 
     /**
