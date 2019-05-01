@@ -105,7 +105,7 @@ class Tracer
             ->havingLocalEndpoint($endpoint)
             ->havingSampler($sampler)
             ->havingReporter($this->getReporter())
-            ->build();;
+            ->build();
         $this->tracer = $this->getTracing()->getTracer();
     }
 
