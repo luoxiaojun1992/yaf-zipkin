@@ -33,6 +33,7 @@ class Tracer
     const RUNTIME_FINISH_SYSTEM_LOAD = 'runtime.finish_system_load';
     const RUNTIME_MEMORY = 'runtime.memory';
     const RUNTIME_PHP_VERSION = 'runtime.php.version';
+    const RUNTIME_PHP_SAPI = 'runtime.php.sapi';
     const DB_QUERY_TIMES = 'db.query.times';
     const DB_QUERY_TOTAL_DURATION = 'db.query.total.duration';
     const FRAMEWORK_VERSION = 'framework.version';
@@ -452,6 +453,7 @@ class Tracer
     {
         $this->addTag($span, self::FRAMEWORK_VERSION, 'Yaf-' . \YAF_VERSION);
         $this->addTag($span, self::RUNTIME_PHP_VERSION, PHP_VERSION);
+        $this->addTag($span, self::RUNTIME_PHP_SAPI, php_sapi_name());
 
         $this->startSysLoadTag($span);
     }
