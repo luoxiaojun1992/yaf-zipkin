@@ -29,7 +29,7 @@ class Plugin extends \Yaf_Plugin_Abstract
 
     private function needSample(\Yaf_Request_Abstract $yafRequest)
     {
-        $apiPrefix = !empty($this->config['api_prefix']) ? explode(',', $this->config['api_prefix']) : ['/api', '/internal/'];
+        $apiPrefix = !empty($this->config['api_prefix']) ? explode(',', $this->config['api_prefix']) : ['/'];
 
         $uri = $yafRequest->getRequestUri();
         if (strpos($uri, '/') !== 0) {
