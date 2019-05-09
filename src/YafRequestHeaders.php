@@ -14,8 +14,8 @@ final class YafRequestHeaders implements Getter, Setter
      */
     public function get($carrier, $key)
     {
-        $lKey = strtolower($key);
-        return isset($carrier[$lKey]) ? $carrier[$lKey] : null;
+        $uKey = 'HTTP_' . strtoupper(str_replace('-', '_', $key));
+        return isset($carrier[$uKey]) ? $carrier[$uKey] : null;
     }
 
     /**

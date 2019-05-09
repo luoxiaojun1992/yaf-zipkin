@@ -32,7 +32,7 @@ class HttpClient extends GuzzleHttpClient
         $yafTracer = \Yaf_Registry::get('zipkin');
         $path = $request->getUri()->getPath();
 
-        return $yafTracer->span(
+        return $yafTracer->clientSpan(
             isset($spanName) ? $spanName : $yafTracer->formatRoutePath($path),
             function (Span $span) use ($request, $options, $yafTracer, $path, $injectSpanCtx) {
                 //Inject trace context to api psr request
@@ -82,6 +82,6 @@ class HttpClient extends GuzzleHttpClient
                         }
                     }
                 }
-            }, null, \Zipkin\Kind\CLIENT);
+            });
     }
 }

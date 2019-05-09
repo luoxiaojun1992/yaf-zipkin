@@ -100,7 +100,7 @@ class Plugin extends \Yaf_Plugin_Abstract
         );
         $this->span->setKind(SERVER);
         $this->span->start();
-        $this->tracer->rootContext = $this->span->getContext();
+        array_push($this->tracer->contextStack, $this->span->getContext());
 
         if ($this->span->getContext()->isSampled()) {
             $this->startMemory = memory_get_usage();
@@ -153,6 +153,7 @@ class Plugin extends \Yaf_Plugin_Abstract
     private function finishSpan()
     {
         $this->span->finish();
+        array_pop($this->tracer->contextStack);
         $this->tracer->flushTracer();
 
     }
@@ -202,15 +203,9 @@ class Plugin extends \Yaf_Plugin_Abstract
             'X-Forwarded-Proto' => ['https'], // Common
             'Front-End-Https' => ['on'], // Microsoft
         ];
-        $headers = [];
-        foreach ($_SERVER as $key => $value) {
-            if (stripos($key, 'HTTP_') === 0) {
-                $headers[strtolower(str_replace('_', '-', str_ireplace('HTTP_', '', $key)))] = $value;
-            }
-        }
         foreach ($secureProtocolHeaders as $header => $values) {
-            $header = strtolower($header);
-            if (($headerValue = isset($headers[$header]) ? $headers[$header] : null) !== null) {
+            $header = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+            if (($headerValue = isset($_SERVER[$header]) ? $_SERVER[$header] : null) !== null) {
                 foreach ($values as $value) {
                     if (strcasecmp($headerValue, $value) === 0) {
                         return true;
