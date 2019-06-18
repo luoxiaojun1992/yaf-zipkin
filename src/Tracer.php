@@ -116,14 +116,18 @@ class Tracer
      */
     private function createTracer()
     {
-        $request = $this->getRequest();
-        $remotePort = $request->getServer('REMOTE_PORT');
-        $endpoint = Endpoint::create(
-            $this->serviceName,
-            $request->getServer('REMOTE_ADDR'),
-            null,
-            $remotePort ? (int)$remotePort : null
-        );
+        if (!$this->runningInConsole()) {
+            $request = $this->getRequest();
+            $remotePort = $request ? $request->getServer('REMOTE_PORT') : null;
+            $endpoint = Endpoint::create(
+                $this->serviceName,
+                $request ? $request->getServer('REMOTE_ADDR') : null,
+                null,
+                $remotePort ? (int)$remotePort : null
+            );
+        } else {
+            $endpoint = Endpoint::create($this->serviceName);
+        }
         $sampler = BinarySampler::createAsAlwaysSample();
 
         $this->tracing = TracingBuilder::create()
@@ -370,9 +374,12 @@ class Tracer
         if ($contextStackLen > 0) {
             $parentContext = $this->contextStack[$contextStackLen - 1];
         } else {
-            if (!in_array(Helper::sapi(), ['phpdbg', 'cli'])) {
-                //Extract trace context from headers
-                $parentContext = $this->extractRequestToContext($this->getRequest());
+            if (!$this->runningInConsole()) {
+                $request = $this->getRequest();
+                if ($request) {
+                    //Extract trace context from headers
+                    $parentContext = $this->extractRequestToContext($this->getRequest());
+                }
             }
         }
 
@@ -491,5 +498,13 @@ class Tracer
     public function __destruct()
     {
         $this->flushTracer();
+    }
+
+    /**
+     * @return bool
+     */
+    protected function runningInConsole()
+    {
+        return in_array(Helper::sapi(), ['phpdbg', 'cli']);
     }
 }
