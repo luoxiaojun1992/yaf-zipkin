@@ -116,11 +116,13 @@ class Tracer
      */
     private function createTracer()
     {
+        $request = $this->getRequest();
+        $remotePort = $request->getServer('REMOTE_PORT');
         $endpoint = Endpoint::create(
             $this->serviceName,
-            array_key_exists('REMOTE_ADDR', $_SERVER) ? $_SERVER['REMOTE_ADDR'] : null,
+            $request->getServer('REMOTE_ADDR'),
             null,
-            array_key_exists('REMOTE_PORT', $_SERVER) ? (int)$_SERVER['REMOTE_PORT'] : null
+            $remotePort ? (int)$remotePort : null
         );
         $sampler = BinarySampler::createAsAlwaysSample();
 
@@ -370,11 +372,16 @@ class Tracer
         } else {
             if (!in_array(Helper::sapi(), ['phpdbg', 'cli'])) {
                 //Extract trace context from headers
-                $parentContext = $this->extractRequestToContext($_SERVER);
+                $parentContext = $this->extractRequestToContext($this->getRequest());
             }
         }
 
         return $parentContext;
+    }
+
+    private function getRequest()
+    {
+        return \Yaf_Dispatcher::getInstance()->getRequest();
     }
 
     /**

@@ -29,7 +29,7 @@ class HttpClient extends GuzzleHttpClient
     public function send(RequestInterface $request, array $options = [], $spanName = null, $injectSpanCtx = true)
     {
         /** @var Tracer $yafTracer */
-        $yafTracer = \Yaf_Registry::get('zipkin');
+        $yafTracer = Tracer::create();
         $path = $request->getUri()->getPath();
 
         return $yafTracer->clientSpan(
