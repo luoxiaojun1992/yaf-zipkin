@@ -15,4 +15,9 @@ class Helper
     {
         return php_sapi_name();
     }
+
+    public static function runningInConsole()
+    {
+        return in_array(self::sapi(), ['phpdbg', 'cli']);
+    }
 }
