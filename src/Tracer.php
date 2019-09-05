@@ -118,12 +118,14 @@ class Tracer
     {
         if (!$this->runningInConsole()) {
             $request = $this->getRequest();
+            $realIp = $request ? $request->getServer('REMOTE_ADDR') : null;
+            $isIpV6 = substr_count($realIp, ':') > 1;
             $remotePort = $request ? $request->getServer('REMOTE_PORT') : null;
             $endpoint = Endpoint::create(
                 $this->serviceName,
-                $request ? $request->getServer('REMOTE_ADDR') : null,
-                null,
-                $remotePort ? (int)$remotePort : null
+                (!$isIpV6) ? $realIp : null,
+                $isIpV6 ? $realIp : null,
+                (!is_null($remotePort)) ? (int)$remotePort : null
             );
         } else {
             $endpoint = Endpoint::create($this->serviceName);
