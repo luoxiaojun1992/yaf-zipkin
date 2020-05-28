@@ -24,10 +24,18 @@ class HttpClient extends GuzzleHttpClient
      * @param string $spanName
      * @param bool $injectSpanCtx
      * @param bool $traceInConsole
+     * @param bool $flushTracing
      * @return mixed|\Psr\Http\Message\ResponseInterface|null
      * @throws \Exception
      */
-    public function send(RequestInterface $request, array $options = [], $spanName = null, $injectSpanCtx = true, $traceInConsole = false)
+    public function send(
+        RequestInterface $request,
+        array $options = [],
+        $spanName = null,
+        $injectSpanCtx = true,
+        $traceInConsole = false,
+        $flushTracing = false
+    )
     {
         $sendRequest = function () use ($request, $options) {
             try {
@@ -96,6 +104,6 @@ class HttpClient extends GuzzleHttpClient
                         }
                     }
                 }
-            });
+            }, $flushTracing);
     }
 }
