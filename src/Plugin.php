@@ -220,9 +220,11 @@ class Plugin extends \Yaf_Plugin_Abstract
     private function getRequestUri(\Yaf_Request_Abstract $yafRequest)
     {
         $uri = $this->tracer->formatHttpPath($yafRequest->getRequestUri());
-        $pathInfo = parse_url($uri);
-        if (isset($pathInfo['path'])) {
-            return $pathInfo['path'];
+        if (strpos($uri, '?')) {
+            $pathInfo = parse_url($uri);
+            if (isset($pathInfo['path'])) {
+                return $pathInfo['path'];
+            }
         }
 
         return $uri;
