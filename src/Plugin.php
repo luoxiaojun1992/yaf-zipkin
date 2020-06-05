@@ -22,6 +22,11 @@ class Plugin extends \Yaf_Plugin_Abstract
 
     private $config;
 
+    //cache
+    private $oldApiPrefix;
+    private $oldUri;
+    private $needSample;
+
     public function __construct()
     {
         $this->config = \Yaf_Application::app()->getConfig()->zipkin->config->toArray();
@@ -36,13 +41,26 @@ class Plugin extends \Yaf_Plugin_Abstract
             $uri = '/' . $uri;
         }
 
-        foreach ($apiPrefix as $prefix) {
-            if (stripos($uri, $prefix) === 0) {
-                return true;
+        //Cache
+        if ($apiPrefix === $this->oldApiPrefix) {
+            if ($uri === $this->oldUri) {
+                if (!is_null($this->needSample)) {
+                    return $this->needSample;
+                }
             }
         }
 
-        return false;
+        //Real
+        $this->oldApiPrefix = $apiPrefix;
+        $this->oldUri = $uri;
+
+        foreach ($apiPrefix as $prefix) {
+            if (stripos($uri, $prefix) === 0) {
+                return ($this->needSample = true);
+            }
+        }
+
+        return ($this->needSample = false);
     }
 
     public function routerStartup(\Yaf_Request_Abstract $yafRequest, \Yaf_Response_Abstract $response)
