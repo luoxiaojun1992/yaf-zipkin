@@ -37,7 +37,7 @@ class Plugin extends \Yaf_Plugin_Abstract
         $apiPrefix = !empty($this->config['api_prefix']) ? explode(',', $this->config['api_prefix']) : ['/'];
 
         $uri = $yafRequest->getRequestUri();
-        if (strpos($uri, '/') !== 0) {
+        if (stripos($uri, '/') !== 0) {
             $uri = '/' . $uri;
         }
 
