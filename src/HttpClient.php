@@ -28,8 +28,8 @@ class HttpClient extends GuzzleHttpClient
      * @return mixed|\Psr\Http\Message\ResponseInterface|null
      * @throws \Exception
      */
-    public function send(
-        RequestInterface $request,
+    public function sendWithTrace(
+        RequestInterface &$request,
         array $options = [],
         $spanName = null,
         $injectSpanCtx = true,
@@ -37,7 +37,7 @@ class HttpClient extends GuzzleHttpClient
         $flushTracing = false
     )
     {
-        $sendRequest = function () use ($request, $options) {
+        $sendRequest = function () use (&$request, $options) {
             try {
                 $response = parent::send($request, $options);
                 return $response;
@@ -57,7 +57,7 @@ class HttpClient extends GuzzleHttpClient
 
         return $yafTracer->clientSpan(
             isset($spanName) ? $spanName : $yafTracer->formatRoutePath($path),
-            function (Span $span) use ($request, $sendRequest, $yafTracer, $path, $injectSpanCtx) {
+            function (Span $span) use (&$request, $sendRequest, $yafTracer, $path, $injectSpanCtx) {
                 //Inject trace context to api psr request
                 if ($injectSpanCtx) {
                     $yafTracer->injectContextToRequest($span->getContext(), $request);
